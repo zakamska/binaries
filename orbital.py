@@ -80,41 +80,51 @@ def true_from_ecc_old(ecc,ecc_anomaly):
 def true_from_ecc(ecc,ecc_anomaly):
     # given eccentricity and ecc_anomaly, return true anomaly
     # works for scalars and for vectors
+    # if eccentricitiy is >1, return the value of true_anomaly
     ecc=np.array([ecc])
+    # create temporary eccentricity so we don't get errors for ecc>1
+    tecc=ecc
+    tecc[(np.abs(ecc)>1.0)]=0.
     ecc_anomaly=np.array([ecc_anomaly])
-    true_anomaly=np.arctan2(np.sqrt(1-ecc**2)*np.sin(ecc_anomaly)/(1-ecc*np.cos(ecc_anomaly)),(np.cos(ecc_anomaly)-ecc)/(1-ecc*np.cos(ecc_anomaly)))
+    true_anomaly=np.arctan2(np.sqrt(1-tecc**2)*np.sin(ecc_anomaly)/(1-tecc*np.cos(ecc_anomaly)),(np.cos(ecc_anomaly)-tecc)/(1-tecc*np.cos(ecc_anomaly)))
     ind=(true_anomaly<0)
     true_anomaly[ind]=2*np.pi+true_anomaly[ind]
     return(true_anomaly[0])
 
 # testing commands:
-#true_from_ecc(0.2,0.1)
+#orbital.true_from_ecc(0.2,0.1)
 #0.12242351980596208
-#true_from_ecc([0.,0.1],0.1)
+#orbital.true_from_ecc([0.,0.1],0.1)
 #array([0.1      , 0.1105337])
-#true_from_ecc(0.1,[0.,0.1])
+#orbital.true_from_ecc(0.1,[0.,0.1])
 #array([0.       , 0.1105337])
-#true_from_ecc([0.,0.2],[0.,0.1])
+#orbital.true_from_ecc([0.,0.2],[0.,0.1])
 #array([0.        , 0.12242352])
+#orbital.true_from_ecc([1.5, 0.2], [0., 0.1])
+# array([0.        , 0.12242352])
 
 def ecc_from_true(ecc,true_anomaly):
     # given eccentricity and true anomaly, return eccentric anomaly
+    # works for scalars and for vectors
+    # if eccentricitiy is >1, return the value of true_anomaly
     ecc=np.array([ecc])
+    # create temporary eccentricity so we don't get errors for ecc>1
+    tecc=ecc
+    tecc[(np.abs(ecc)>1.0)]=0.
     true_anomaly=np.array([true_anomaly])
-    ecc_anomaly=np.arctan2(np.sqrt(1-ecc**2)*np.sin(true_anomaly)/(1+ecc*np.cos(true_anomaly)),
-                           (np.cos(true_anomaly)+ecc)/(1+ecc*np.cos(true_anomaly)))
+    ecc_anomaly=np.arctan2(np.sqrt(1-tecc**2)*np.sin(true_anomaly)/(1+tecc*np.cos(true_anomaly)), (np.cos(true_anomaly)+tecc)/(1+tecc*np.cos(true_anomaly)))
     # arctan2 function is defined on -pi to pi
     ind=(ecc_anomaly<0)
     ecc_anomaly[ind]=ecc_anomaly[ind]+2*np.pi
     return(ecc_anomaly[0])
 
-#ecc_from_true(0.2,0.1224235198)
+#orbital.ecc_from_true(0.2,0.1224235198)
 #0.0999999999951259
-#ecc_from_true([0.,0.1],0.1105337)
+#orbital.ecc_from_true([0.,0.1],0.1105337)
 #array([0.1105337, 0.1      ])
-#ecc_from_true(0.1, [0.       , 0.1105337])
+#orbital.ecc_from_true(0.1, [0.       , 0.1105337])
 #array([0. , 0.1])
-#ecc_from_true([0.,0.2],[0.        , 0.12242352])
+#orbital.ecc_from_true([0.,0.2],[0.        , 0.12242352])
 #array([0. , 0.1])
 
 def mean_from_ecc(ecc,ecc_anomaly):
@@ -125,20 +135,24 @@ def mean_from_ecc(ecc,ecc_anomaly):
 def ecc_from_mean(ecc,mean_anomaly):
     # given eccentricy and mean anomaly, return eccentric anomaly
     # works for arrays, too
+    # if ecc>1, return mean_anomaly
     if (mylen(ecc)>1 and mylen(mean_anomaly)==1): mean_anomaly=np.ones(len(ecc))*mean_anomaly
+    tecc=ecc
+    if (mylen(ecc)==1 and ecc>1.): tecc=0.
+    if (mylen(ecc)>1): tecc[(ecc>1.)]=0.
     def myfunc(x):
-        return(x-ecc*np.sin(x)-mean_anomaly)
+        return(x-tecc*np.sin(x)-mean_anomaly)
     ecc_anomaly = scipy.optimize.newton_krylov(myfunc, mean_anomaly, f_tol=1e-14)
     return(ecc_anomaly)
 
 # testing commands:
-# ecc_from_mean(0.2,0.1)
+# orbital.ecc_from_mean(0.2,0.1)
 # array(0.12491884)
-# ecc_from_mean([0.,0.2],[0.1,0.1])
+# orbital.ecc_from_mean([0.,0.2],[0.1,0.1])
 # array([0.1       , 0.12491884])
-# ecc_from_mean(0.2,[0.,0.1])
+# orbital.ecc_from_mean(0.2,[0.,0.1])
 # array([0.        , 0.12491884])
-# ecc_from_mean([0.,0.2],0.1)
+# orbital.ecc_from_mean([0.,0.2],0.1)
 # array([0.1       , 0.12491884])
 
 # **********************************************************************
