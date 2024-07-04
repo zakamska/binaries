@@ -29,6 +29,16 @@ from astropy.table import Table
 # **********************************************************************
 # **********************************************************************
 
+# the range of the orbital angles:
+# inclination is from 0 to pi (Murray and Dermott Section 2.8)
+# if inclination is <pi/2 then prograde, if inclination is >pi/2 then 
+# retrograde
+# omega, asclong, mean_anomaly are from 0 to 2pi
+
+# **********************************************************************
+# **********************************************************************
+# **********************************************************************
+
 # Some essentials
 
 kms=1e5
@@ -376,4 +386,16 @@ def testing_one_kick_loss():
     dir_res = solve_ivp(rhs, (0, deltat), [rvec0[0], rvec0[1], rvec0[2], vvec0[0], vvec0[1], vvec0[2]], t_eval=t_eval)
     print(orbital_from_cart(m1+m2-deltam,dir_res.y[0:3,nsteps],dir_res.y[3:6,nsteps]))
     return(1)
+
+#******************************************************************
+#******************************************************************
+#******************************************************************
+
+#https://en.wikipedia.org/wiki/Maximum_likelihood_estimation
+def max_likelihood_ecc(ecc, emax=1.0):
+    # given an array of eccentricities, return the max likelihood alpha parameter
+    # for the best-fit powerlaw distribution
+    # if the eccentricities are only defined on 0 to emax, should also work
+    tecc=ecc[(ecc<emax)]
+    return(len(tecc)/(len(tecc)*np.log(emax)-np.sum(np.log(tecc)))-1.)
 
