@@ -1,3 +1,7 @@
+# These are functions that are used for orbital dynamics calculations 
+# in Hwang and Zakamska (2025)
+# Written by Nadia Zakamska June 2024
+
 # to reload in python 3.6:
 # import importlib
 # importlib.reload(orbital)
@@ -6,12 +10,14 @@
 #def per(mass,a):
 #def sma(period,m1,m2): given period in days and masses, return sma in AU
 #def scal(a,b):
+#def testing_scal():
 #def mylen(x):
 #def true_from_ecc_old(ecc,ecc_anomaly):
 #def true_from_ecc(ecc,ecc_anomaly):
 #def ecc_from_true(ecc,true_anomaly):
 #def mean_from_ecc(ecc,ecc_anomaly):
 #def ecc_from_mean(ecc,mean_anomaly):
+#def testing_anomalies():
 #def orbital_from_cart(m,r,v):
 #def testing_orbital_from_cart():
 #def cart_from_orbital(m, a, ecc, inc, asclong, omega, mean_anomaly):
@@ -65,6 +71,27 @@ def scal(a,b):
     # np.shape(a)=np.shape(b)=(length_of_list, 3)
     # unfortunately, for just two vectors, they must be reshaped: scal(np.array([[1.,2.,3.]]),np.array([[2.,3.,4]]))
     return(np.einsum('ij, ij->i', a, b))
+
+def testing_scal():
+    a=np.ones((2,3))
+    a[1,2]=5
+    b=np.ones((2,3))*2
+    b[0,0]=0
+    print('a: ', a)
+    print('b: ', b)
+    print('vector product: ', np.cross(a,b))
+    print('scalar product: ', scal(a,b))
+    print('projection onto z axis:', a.dot(np.transpose(np.array([0,0,1]))))
+    return(1)
+    #output:
+    #a:  [[1. 1. 1.]
+    #     [1. 1. 5.]]
+    #b:  [[0. 2. 2.]
+    #     [2. 2. 2.]]
+    #vector product:  [[ 0. -2.  2.]
+    #                  [-8.  8.  0.]]
+    #scalar product:  [ 4. 14.]
+    #projection onto z axis: [1. 5.]
 
 def mylen(x):
     # return 1 if a scalar and length otherwise
@@ -164,6 +191,32 @@ def ecc_from_mean(ecc,mean_anomaly):
 # array([0.        , 0.12491884])
 # orbital.ecc_from_mean([0.,0.2],0.1)
 # array([0.1       , 0.12491884])
+
+def test_anomalies():
+    mean_anomaly=np.arange(0,4*np.pi,0.01)
+    ecc=0.5
+    ecc_anomaly=orbital.ecc_from_mean(ecc,mean_anomaly)
+    true_anomaly=orbital.true_from_ecc(ecc,ecc_anomaly)
+    fig=plt.figure()
+    plt.plot(mean_anomaly,ecc_anomaly, color='blue',label='eccentric anomaly')
+    plt.plot(mean_anomaly,true_anomaly, color='red',label='true anomaly')
+    plt.legend(loc='upper left')
+    plt.xlabel('mean anomaly')
+    plt.ylabel('other anomalies')
+    fig.tight_layout()
+    plt.show()
+    ecc=1.5
+    ecc_anomaly=orbital.ecc_from_mean(ecc,mean_anomaly)
+    true_anomaly=orbital.true_from_ecc(ecc,ecc_anomaly)
+    fig=plt.figure()
+    plt.plot(mean_anomaly,ecc_anomaly, color='blue',label='eccentric anomaly')
+    plt.plot(mean_anomaly,true_anomaly, color='red',label='true anomaly')
+    plt.legend(loc='upper left')
+    plt.xlabel('mean anomaly')
+    plt.ylabel('other anomalies')
+    fig.tight_layout()
+    plt.show()
+    return(1)
 
 # **********************************************************************
 # **********************************************************************

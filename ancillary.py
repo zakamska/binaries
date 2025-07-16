@@ -1,3 +1,7 @@
+# These are ancillary files for the analytical calculations in the Appendix
+# of Hwang and Zakamska (2025)
+# Written by Nadia Zakamska June 2024
+
 import numpy as np
 import sys
 import mcint
